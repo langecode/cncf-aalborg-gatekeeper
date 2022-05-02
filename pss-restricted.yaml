@@ -1,0 +1,83 @@
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPVolumeTypes
+metadata:
+  name: pss-restricted-volume-types
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchLabels:
+        netic.dk/enforce-policies: "true"
+  parameters:
+    volumes:
+      - configMap
+      - csi
+      - downwardAPI
+      - emptyDir
+      - ephemeral
+      - persistentVolumeClaim
+      - projected
+      - secret
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowPrivilegeEscalationContainer
+metadata:
+  name: pss-restricted-allow-privilege-escalation
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchLabels:
+        netic.dk/enforce-policies: "true"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: pss-restricted-non-root
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchLabels:
+        netic.dk/enforce-policies: "true"
+  parameters:
+    runAsUser:
+      rule: MustRunAsNonRoot
+    #supplementalGroups:
+    #  rule: MustRunAs
+    #  ranges:
+    #    - min: 1
+    #      max: 65535
+    #fsGroup:
+    #  rule: MustRunAs
+    #  ranges:
+    #    - min: 1
+    #      max: 65535
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: pss-restricted-capabilities
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaceSelector:
+      matchLabels:
+        netic.dk/enforce-policies: "true"
+    labelSelector:
+      matchExpressions:
+        - key: "app.kubernetes.io/instance"
+          operator: NotIn
+          values: ["vault"]
+  parameters:
+    allowedCapabilities: ["NET_BIND_SERVICE"]
+    requiredDropCapabilities: ["ALL"]
