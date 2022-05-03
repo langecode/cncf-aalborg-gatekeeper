@@ -73,11 +73,6 @@ spec:
     namespaceSelector:
       matchLabels:
         netic.dk/enforce-policies: "true"
-    labelSelector:
-      matchExpressions:
-        - key: "app.kubernetes.io/instance"
-          operator: NotIn
-          values: ["vault"]
   parameters:
     allowedCapabilities: ["NET_BIND_SERVICE"]
     requiredDropCapabilities: ["ALL"]
